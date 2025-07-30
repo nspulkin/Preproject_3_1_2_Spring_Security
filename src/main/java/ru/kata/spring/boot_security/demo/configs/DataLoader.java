@@ -6,8 +6,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
-import ru.kata.spring.boot_security.demo.services.UserService;
 import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
+import ru.kata.spring.boot_security.demo.services.UserService;
 
 import java.util.Set;
 
@@ -28,18 +28,16 @@ public class DataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         // Проверяем, существует ли роль "ROLE_USER"
-        Role userRole = roleRepository.findByName("ROLE_USER")
-                .orElseGet(() -> {
-                    Role role = new Role("ROLE_USER");
-                    return roleRepository.save(role);
-                });
+        Role userRole = roleRepository.findByName("ROLE_USER").orElseGet(() -> {
+            Role role = new Role("ROLE_USER");
+            return roleRepository.save(role);
+        });
 
         // Проверяем, существует ли роль "ROLE_ADMIN"
-        Role adminRole = roleRepository.findByName("ROLE_ADMIN")
-                .orElseGet(() -> {
-                    Role role = new Role("ROLE_ADMIN");
-                    return roleRepository.save(role);
-                });
+        Role adminRole = roleRepository.findByName("ROLE_ADMIN").orElseGet(() -> {
+            Role role = new Role("ROLE_ADMIN");
+            return roleRepository.save(role);
+        });
 
         // Создаем администратора с ролью "ROLE_ADMIN"
         User admin = new User("admin", passwordEncoder.encode("admin"), 30, "admin@example.com", Set.of(adminRole, userRole));
