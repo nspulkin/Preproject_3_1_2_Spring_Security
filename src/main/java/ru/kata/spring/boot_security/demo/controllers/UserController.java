@@ -1,8 +1,6 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -19,20 +17,32 @@ public class UserController {
 
     @Autowired
     public UserController(UserService userService) {
-        this.userService = userService;
+        try {
+            if (userService == null) {
+                throw new IllegalArgumentException("UserService cannot be null");
+            }
+            this.userService = userService;
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка при инициализации UserController", e);
+        }
     }
-
 
     @GetMapping
     public String userPage(@ModelAttribute("user") User user) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User userDetails = userService.findByName(authentication.getName()).get();
-        user.setName(userDetails.getName());
-        user.setId(userDetails.getId());
-        user.setAge(userDetails.getAge());
-        user.setEmail(userDetails.getEmail());
-        user.setRoles(userDetails.getRoles());
-        return "user";
+        try {
+            User currentUser = userService.getCurrentUser();
+            if (currentUser == null) {
+                return "redirect:/auth/login";
+            }
+            user.setName(currentUser.getName());
+            user.setId(currentUser.getId());
+            user.setAge(currentUser.getAge());
+            user.setEmail(currentUser.getEmail());
+            user.setRoles(currentUser.getRoles());
+            return "user";
+        } catch (Exception e) {
+            return "redirect:/auth/login";
+        }
     }
 
     @PostMapping("/logout")
