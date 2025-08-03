@@ -36,6 +36,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Role getRoleById(int id) {
         try {
             if (id <= 0) {

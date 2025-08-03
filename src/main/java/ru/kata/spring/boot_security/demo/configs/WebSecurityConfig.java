@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
 @Configuration
@@ -36,6 +37,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
+    @Transactional(readOnly = true)
     protected void configure(HttpSecurity http) throws Exception {
         try {
             http.csrf().disable().authorizeRequests().antMatchers("/auth/registration", "/auth/login", "/error").permitAll().antMatchers("/user/**").hasAnyRole("ADMIN", "USER").antMatchers("/admin/**").hasRole("ADMIN").anyRequest().authenticated().and().formLogin().loginProcessingUrl("/process_login").successHandler(successUserHandler).loginPage("/auth/login").permitAll().and().logout().logoutUrl("/user/logout").logoutSuccessUrl("/auth/login").permitAll();
@@ -45,6 +47,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
+    @Transactional(readOnly = true)
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         try {
             auth.userDetailsService(userService).passwordEncoder(getPasswordEncoder());

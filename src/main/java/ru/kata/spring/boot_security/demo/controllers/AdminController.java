@@ -2,6 +2,7 @@ package ru.kata.spring.boot_security.demo.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +36,7 @@ public class AdminController {
     }
 
     @GetMapping()
+    @Transactional(readOnly = true)
     public String usersPage(Model model) {
         try {
             model.addAttribute("listUser", userService.index());
@@ -49,6 +51,7 @@ public class AdminController {
     }
 
     @GetMapping("/show")
+    @Transactional(readOnly = true)
     public String show(@RequestParam(value = "id") int id, Model model) {
         try {
             User user = userService.show(id);
@@ -63,6 +66,7 @@ public class AdminController {
     }
 
     @GetMapping("/new")
+    @Transactional(readOnly = true)
     public String newUser(Model model) {
         try {
             model.addAttribute("user", new User());
@@ -77,6 +81,7 @@ public class AdminController {
     }
 
     @PostMapping()
+    @Transactional
     public String create(@ModelAttribute("user") @Valid User user, BindingResult bindingResult) {
         if (user == null) {
             return "admin/new";
@@ -96,6 +101,7 @@ public class AdminController {
     }
 
     @PutMapping("/edit")
+    @Transactional
     public String update(@RequestParam(value = "id") int id, String name, String password, String email, int age, String role) {
         if (name == null || name.trim().isEmpty() || email == null || email.trim().isEmpty() || role == null || role.trim().isEmpty()) {
             return "redirect:/admin";
@@ -109,6 +115,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/delete")
+    @Transactional
     public String delete(@RequestParam(value = "id") int id) {
         if (id <= 0) {
             return "redirect:/admin";

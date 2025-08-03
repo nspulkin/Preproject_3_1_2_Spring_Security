@@ -42,6 +42,7 @@ public class RegistrationService {
         userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public String encodePassword(String password) {
         if (password == null || password.trim().isEmpty()) {
             throw new IllegalArgumentException("Password cannot be null or empty");

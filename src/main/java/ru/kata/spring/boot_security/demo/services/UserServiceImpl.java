@@ -30,18 +30,34 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<User> index() {
-        return userRepository.findAll();
+        List<User> users = userRepository.findAll();
+        // Инициализируем роли для всех пользователей
+        for (User user : users) {
+            user.getRoles().size(); // Это загрузит роли
+        }
+        return users;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User show(int id) {
-        return userRepository.findById(id).orElse(null);
+        Optional<User> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            User userEntity = user.get();
+            userEntity.getRoles().size(); // Это загрузит роли
+            return userEntity;
+        }
+        return null;
     }
 
     @Override
     @Transactional
     public void save(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
         userRepository.save(user);
     }
 
@@ -65,28 +81,43 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<User> findByName(String name) {
         return userRepository.findByName(name);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> user = userRepository.findByName(username);
         if (user.isEmpty()) {
             throw new UsernameNotFoundException("User not found");
         }
-        return user.get();
+        // Инициализируем роли для избежания проблем с ленивой загрузкой
+        User userEntity = user.get();
+        userEntity.getRoles().size(); // Это загрузит роли
+        return userEntity;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User getCurrentUser() {
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        return findByName(currentUsername).orElse(null);
+        Optional<User> user = findByName(currentUsername);
+        if (user.isPresent()) {
+            User userEntity = user.get();
+            userEntity.getRoles().size(); // Это загрузит роли
+            return userEntity;
+        }
+        return null;
     }
 
     @Override
     @Transactional
     public User createUser(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
         Optional<User> existingUser = findByName(user.getName());
         if (existingUser.isPresent()) {
             throw new IllegalArgumentException("User already exists");
